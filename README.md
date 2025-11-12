@@ -9,4 +9,46 @@
 | **Key Methods**             | `main()` – Entry point<br>`loginUser()` – User authentication<br>`showAdminMenu()` / `showStudentMenu()` – Displays respective role options<br>`addCourse()` / `updateCourse()` / `deleteCourse()` – Course management<br>`registerCourse()` / `dropCourse()` / `viewRegisteredCourses()` – Student enrollment functions<br>`viewAllRegistrations()` – Admin registration overview<br>`connectDatabase()` / `closeConnection()` / `exitApp()` – Database and application control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Internal Working**        | The system uses **Java JDBC** to connect to **MySQL**. When users perform operations, SQL queries are executed in real-time. All user actions, like adding or dropping courses, are immediately updated in the database, ensuring data accuracy and consistency.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | **Developers**              | 👩‍💻 **Monika S** – Developer, Mailam Engineering College, Department of Computer Science and Engineering<br>👩‍💻 **Nathiya N** – Developer, Mailam Engineering College, Department of Computer Science and Engineering                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| **SQL Database Setup Code** | **1. Create Database and Tables**<br>The system requires a database named `college_registration` with three main tables: **Users**, **Courses**, and **Registrations**.<br><br>`sql<br>-- Create Database<br>CREATE DATABASE IF NOT EXISTS college_registration;<br>USE college_registration;<br><br>-- 1. Users Table (Stores Admin/Student credentials and role)<br>CREATE TABLE Users (<br>    user_id INT PRIMARY KEY AUTO_INCREMENT,<br>    username VARCHAR(50) NOT NULL UNIQUE,<br>    password VARCHAR(50) NOT NULL, -- In real systems, use secure hashing<br>    user_role ENUM('Admin', 'Student') NOT NULL,<br>    first_name VARCHAR(50),<br>    last_name VARCHAR(50)<br>);<br><br>-- 2. Courses Table<br>CREATE TABLE Courses (<br>    course_id INT PRIMARY KEY AUTO_INCREMENT,<br>    course_code VARCHAR(10) NOT NULL UNIQUE,<br>    course_name VARCHAR(100) NOT NULL,<br>    description TEXT,<br>    capacity INT NOT NULL, -- Max number of students<br>    current_enrollment INT DEFAULT 0 -- Tracks enrolled students<br>);<br><br>-- 3. Registrations Table (Links students to courses)<br>CREATE TABLE Registrations (<br>    registration_id INT PRIMARY KEY AUTO_INCREMENT,<br>    student_id INT NOT NULL,<br>    course_id INT NOT NULL,<br>    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,<br>    FOREIGN KEY (student_id) REFERENCES Users(user_id) ON DELETE CASCADE,<br>    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE,<br>    UNIQUE KEY (student_id, course_id) -- Prevent duplicate registration<br>);<br><br>-- Insert Initial Data<br>INSERT INTO Users (username, password, user_role, first_name) VALUES<br>('admin', 'admin123', 'Admin', 'System'),<br>('alice_s', 'pass123', 'Student', 'Alice');<br><br>INSERT INTO Courses (course_code, course_name, capacity) VALUES<br>('CS101', 'Intro to Java', 30),<br>('MA202', 'Calculus II', 45);<br>` |
+| **SQL Database Setup Code** | -- Create Database
+CREATE DATABASE IF NOT EXISTS college_registration;
+USE college_registration;
+
+-- 1. Users Table (Stores Admin/Student credentials and role)
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(50) NOT NULL, -- Note: In a real system, passwords should be securely hashed
+    user_role ENUM('Admin', 'Student') NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50)
+);
+
+-- 2. Courses Table
+CREATE TABLE Courses (
+    course_id INT PRIMARY KEY AUTO_INCREMENT,
+    course_code VARCHAR(10) NOT NULL UNIQUE,
+    course_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    capacity INT NOT NULL, -- Max number of students
+    current_enrollment INT DEFAULT 0 -- Tracks current count for capacity check
+);
+
+-- 3. Registrations Table (Links students to courses)
+CREATE TABLE Registrations (
+    registration_id INT PRIMARY KEY AUTO_INCREMENT,
+    student_id INT NOT NULL,
+    course_id INT NOT NULL,
+    registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE,
+    UNIQUE KEY (student_id, course_id) -- Prevent duplicate registration
+);
+
+-- Initial Data (Example: Default Admin and a Student)
+INSERT INTO Users (username, password, user_role, first_name) VALUES
+('admin', 'admin123', 'Admin', 'System'),
+('alice_s', 'pass123', 'Student', 'Alice');
+
+INSERT INTO Courses (course_code, course_name, capacity) VALUES
+('CS101', 'Intro to Java', 30),
+('MA202', 'Calculus II', 45); |
